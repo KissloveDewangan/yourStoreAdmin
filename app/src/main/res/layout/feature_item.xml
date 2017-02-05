@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_feature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in tincidunt quam, sed tempus turpis. Sed quis iaculis lacus, sit amet posuere mi. Donec eu eleifend eros. Sed accumsan neque a blandit euismod. Proin vestibulum quis urna vitae pretium. Nulla fermentum purus eget lacus mattis porttitor. Etiam in luctus lectus."
+        android:textColor="@color/blackshade1"
+        android:textSize="14sp" />
+</LinearLayout>

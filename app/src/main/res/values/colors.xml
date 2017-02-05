@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimaryDark">#FAFAFA</color>
+    <color name="colorAccent">#E0E0E0</color>
+
+    <color name="black">#212121</color>
+    <color name="lightBlack">#424242</color>
+    <color name="highlightColor2">#F44336</color>
+    <color name="highlightColor">#FF5A5F</color>
+
+    <color name="errorColor">#DD2C00</color>
+    <color name="linkColor">#4285F4</color>
+    <color name="linkColor2">#008EB7</color>
+    <color name="blackshade1">#BDBDBD</color>
+
+    <color name="holo_blue_dark">#ff0099cc</color>
+    <color name="view_divider_color">#BABABA</color>
+    <color name="view_divider_color_2">#DADADA</color>
+</resources>
