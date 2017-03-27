@@ -5,18 +5,32 @@ package in.co.opensoftlab.yourstoreadmin.model;
  */
 
 public class ListingItem {
+    String productType;
     String id;
     String productUrl;
     String productName;
     int productPrice;
-    int quantity;
+    String info;
 
-    public ListingItem(String id, String productUrl, String productName, int productPrice, int quantity) {
+    public ListingItem(String productType, String id, String productUrl, String productName, int productPrice, String info) {
+        this.productType = productType;
         this.id = id;
         this.productUrl = productUrl;
         this.productName = productName;
         this.productPrice = productPrice;
-        this.quantity = quantity;
+        this.info = info;
+    }
+
+    public ListingItem() {
+
+    }
+
+    public String getProductType() {
+        return productType;
+    }
+
+    public void setProductType(String productType) {
+        this.productType = productType;
     }
 
     public String getId() {
@@ -51,11 +65,11 @@ public class ListingItem {
         this.productPrice = productPrice;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public String getInfo() {
+        return info;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setInfo(String info) {
+        this.info = info;
     }
 }

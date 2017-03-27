@@ -1,11 +1,14 @@
 package in.co.opensoftlab.yourstoreadmin.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -32,10 +36,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -43,10 +51,10 @@ import in.co.opensoftlab.yourstoreadmin.CirclePageIndicator;
 import in.co.opensoftlab.yourstoreadmin.PageIndicator;
 import in.co.opensoftlab.yourstoreadmin.R;
 import in.co.opensoftlab.yourstoreadmin.adapter.FeaturesAdapter;
-import in.co.opensoftlab.yourstoreadmin.model.ProductModel;
-import in.co.opensoftlab.yourstoreadmin.model.SpecificationItem;
 import in.co.opensoftlab.yourstoreadmin.adapter.ImageSlideAdapter;
 import in.co.opensoftlab.yourstoreadmin.adapter.SpecificationListAdapter;
+import in.co.opensoftlab.yourstoreadmin.model.ProductModel;
+import in.co.opensoftlab.yourstoreadmin.model.SpecificationItem;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 /**
@@ -69,18 +77,23 @@ public class ProductDescription extends AppCompatActivity implements OnMapReadyC
     ViewPager viewPager;
     PageIndicator pageIndicator;
     ImageView back;
-    ImageView share;
-    ImageView favourite;
     TextView productName;
     TextView productPrice;
-    TextView mrp;
-    TextView discount;
     CircleImageView sellerImg;
     TextView sellerName;
-    TextView storeName;
-    RecyclerView features;
+    TextView sellerType;
+    TextView ownerNo;
+    RecyclerView carOverview;
     RecyclerView recyclerView;
-    Button contactSeller;
+    String sellerId;
+    String urlSeller;
+    String nameSeller;
+    TextView uploadDate;
+    private TextView distance;
+
+    ImageView share, favourite;
+    Button message, requestMob, makeDeal;
+    private RelativeLayout relativeLayout;
 
     List<String> productUrls = new ArrayList<>();
     ImageSlideAdapter imageSlideAdapter;
@@ -91,11 +104,12 @@ public class ProductDescription extends AppCompatActivity implements OnMapReadyC
 
     LinearLayoutManager layoutManager;
     List<String> listFeatures = new ArrayList<>();
-    FeaturesAdapter featuresAdapter;
+    List<Integer> listFeatureImgs = new ArrayList<>();
+    FeaturesAdapter carOverviewAdapter;
 
     Bundle bundle = null;
+    private String productType = "";
     private DatabaseReference mDatabase;
-    private FirebaseAuth mAuth;
     private ValueEventListener valueEventListener;
 
     @Override
@@ -104,12 +118,12 @@ public class ProductDescription extends AppCompatActivity implements OnMapReadyC
         setContentView(R.layout.activity_product_description);
         initUI();
 
-        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference("products").child("all").child("live");
 
         bundle = getIntent().getExtras().getBundle("lookProduct");
+        productType = bundle.getString("productType");
         if (bundle != null) {
             Log.d("readData", bundle.getString("productId"));
-            mDatabase = FirebaseDatabase.getInstance().getReference("products").child("inactive");
 
             valueEventListener = new ValueEventListener() {
                 @Override
@@ -118,15 +132,21 @@ public class ProductDescription extends AppCompatActivity implements OnMapReadyC
                     if (dataSnapshot.exists()) {
                         ProductModel products = dataSnapshot.getValue(ProductModel.class);
 
+                        sellerId = products.getSellerId();
+                        urlSeller = products.getSellerUrl();
+                        nameSeller = products.getSellerName();
+
+                        uploadDate.setText("Upload Date: " + products.getUploadDate().split(" ")[0]);
+
                         productName.setText(products.getProductName());
-                        productPrice.setText("" + products.getSellingPrice());
-                        mrp.setText("MRP-" + products.getMrp());
-                        discount.setText("" + products.getDiscount()+"%");
+                        productPrice.setText("" + products.getPrice());
                         sellerName.setText(products.getSellerName());
+                        sellerType.setText(products.getSellerType());
+                        ownerNo.setText(products.getOwnerNo());
                         Picasso.with(getApplicationContext())
                                 .load(products.getSellerUrl())
                                 .into(sellerImg);
-                        storeName.setText(products.getStoreName());
+
 
                         for (int i = 0; i < products.getProductUrls().split("::").length; i++) {
                             String url = products.getProductUrls().split("::")[i];
@@ -141,16 +161,59 @@ public class ProductDescription extends AppCompatActivity implements OnMapReadyC
                                     ANIM_VIEWPAGER_DELAY);
                         }
 
-                        for (int i = 0; i < products.getProductFeatures().split("::").length; i++) {
-                            String s = products.getProductFeatures().split("::")[i];
-                            listFeatures.add(s);
-                        }
-                        featuresAdapter.notifyDataSetChanged();
+                        if (productType.contentEquals("Car")) {
+                            listFeatures.add(String.valueOf(products.getDrivenDistance()) + " kms\nDriven");
+                            listFeatures.add(products.getFuelType() + "\nFuel Type");
+                            listFeatures.add(products.getModelYear() + "\nModel Year");
+                            listFeatures.add(products.getTransmission() + "\nTransmission");
+                            listFeatures.add(products.getColor() + "\nColor");
+                            listFeatures.add(products.getEngine() + " CC\nEngine");
+                            listFeatures.add(String.valueOf(products.getSeating()) + "\nSeating");
+                            listFeatures.add(products.getMileage() + " kmpl\nMileage");
+                            listFeatures.add(String.valueOf(products.getTankCapacity()) + "L Fuel Tank Capacity");
 
-                        Log.d("specificationLength", String.valueOf(products.getProductSpecifications().split(";;").length));
-                        for (int j = 0; j < products.getProductSpecifications().split(";;").length; j++) {
-                            SpecificationItem featureItem = new SpecificationItem(products.getProductSpecifications().split(";;")[j].split("::")[0], products.getProductSpecifications().split(";;")[j].split("::")[1]);
-                            featureItems.add(featureItem);
+                            listFeatureImgs.add(R.drawable.icon_road);
+                            listFeatureImgs.add(R.drawable.icon_fuel);
+                            listFeatureImgs.add(R.drawable.icon_calender);
+                            listFeatureImgs.add(R.drawable.icon_transmission);
+                            listFeatureImgs.add(R.drawable.icon_colors);
+                            listFeatureImgs.add(R.drawable.icon_engine);
+                            listFeatureImgs.add(R.drawable.icon_seating);
+                            listFeatureImgs.add(R.drawable.icon_mileage);
+                            listFeatureImgs.add(R.drawable.icon_capacity);
+                            carOverviewAdapter.notifyDataSetChanged();
+                        } else {
+                            listFeatures.add(String.valueOf(products.getDrivenDistance()) + " kms\nDriven");
+                            listFeatures.add(products.getModelYear() + "\nModel Year");
+                            listFeatures.add(products.getTopSpeed() + " kmph\nTop Speed");
+                            listFeatures.add(products.getElectricStart() + "\nSelf Start");
+                            listFeatures.add(products.getColor() + "\nColor");
+                            listFeatures.add(products.getEngine() + " CC\nEngine");
+                            listFeatures.add(products.getMileage() + " kmpl\nMileage");
+                            listFeatures.add(String.valueOf(products.getTankCapacity()) + "L Fuel Tank Capacity");
+
+                            listFeatureImgs.add(R.drawable.icon_road);
+                            listFeatureImgs.add(R.drawable.icon_calender);
+                            listFeatureImgs.add(R.drawable.icon_calender);
+                            listFeatureImgs.add(R.drawable.icon_calender);
+                            listFeatureImgs.add(R.drawable.icon_colors);
+                            listFeatureImgs.add(R.drawable.icon_engine);
+                            listFeatureImgs.add(R.drawable.icon_mileage);
+                            listFeatureImgs.add(R.drawable.icon_capacity);
+                            carOverviewAdapter.notifyDataSetChanged();
+                        }
+
+                        Log.d("specificationLength", String.valueOf(products.getConditions().split(";;").length));
+                        for (int j = 0; j < products.getConditions().split(";;").length; j++) {
+                            if (products.getConditions().split(";;")[j].split("::")[1].contentEquals("N/A")) {
+                                SpecificationItem featureItem = new SpecificationItem(products.getConditions().split(";;")[j].split("::")[0],
+                                        "N/A");
+                                featureItems.add(featureItem);
+                            } else {
+                                SpecificationItem featureItem = new SpecificationItem(products.getConditions().split(";;")[j].split("::")[0],
+                                        products.getConditions().split(";;")[j].split("::")[1].substring(0, 1) + "/5");
+                                featureItems.add(featureItem);
+                            }
                         }
                         specificationListAdapter.notifyDataSetChanged();
 
@@ -174,8 +237,6 @@ public class ProductDescription extends AppCompatActivity implements OnMapReadyC
                                 .position(place)
                                 .title(products.getAddress()));
                         melbourne.showInfoWindow();
-
-
                     }
                 }
 
@@ -200,23 +261,26 @@ public class ProductDescription extends AppCompatActivity implements OnMapReadyC
 
 
     private void initUI() {
+        relativeLayout = (RelativeLayout) findViewById(R.id.relativeLayout);
         viewPager = (ViewPager) findViewById(R.id.pager);
         pageIndicator = (CirclePageIndicator) findViewById(R.id.indicator);
         //productImg = (ImageView) findViewById(R.id.product_img);
         back = (ImageView) findViewById(R.id.action_back);
         share = (ImageView) findViewById(R.id.action_share);
-        favourite = (ImageView) findViewById(R.id.action_favorite);
         productName = (TextView) findViewById(R.id.tv_product_name);
         productPrice = (TextView) findViewById(R.id.tv_product_price);
-        mrp = (TextView) findViewById(R.id.tv_mrp);
-        discount = (TextView) findViewById(R.id.tv_discount);
-        mrp.setPaintFlags(mrp.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         sellerImg = (CircleImageView) findViewById(R.id.seller_image);
         sellerName = (TextView) findViewById(R.id.tv_seller_name);
-        storeName = (TextView) findViewById(R.id.tv_store_name);
-        features = (RecyclerView) findViewById(R.id.recyclerFeatures);
+        sellerType = (TextView) findViewById(R.id.tv_seller_type);
+        ownerNo = (TextView) findViewById(R.id.tv_owner);
+        carOverview = (RecyclerView) findViewById(R.id.recyclerOverview);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        contactSeller = (Button) findViewById(R.id.b_contact);
+        uploadDate = (TextView) findViewById(R.id.tv_date);
+        distance = (TextView) findViewById(R.id.tv_distance);
+        favourite = (ImageView) findViewById(R.id.action_favorite);
+        message = (Button) findViewById(R.id.b_contact);
+        makeDeal = (Button) findViewById(R.id.b_deal);
+        requestMob = (Button) findViewById(R.id.b_purchase);
 
         imageSlideAdapter = new ImageSlideAdapter(getApplicationContext(), productUrls);
         viewPager.setAdapter(imageSlideAdapter);
@@ -262,17 +326,59 @@ public class ProductDescription extends AppCompatActivity implements OnMapReadyC
         specificationListAdapter = new SpecificationListAdapter(ProductDescription.this, featureItems);
         recyclerView.setAdapter(specificationListAdapter);
 
-        features.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(ProductDescription.this, LinearLayoutManager.VERTICAL, false);
-        features.setLayoutManager(layoutManager);
-        featuresAdapter = new FeaturesAdapter(ProductDescription.this, listFeatures);
-        features.setAdapter(featuresAdapter);
+        carOverview.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(ProductDescription.this, LinearLayoutManager.HORIZONTAL, false);
+        carOverview.setLayoutManager(layoutManager);
+        carOverviewAdapter = new FeaturesAdapter(ProductDescription.this, listFeatures, listFeatureImgs);
+        carOverview.setAdapter(carOverviewAdapter);
 
-        contactSeller.setOnClickListener(new View.OnClickListener() {
+
+        back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                onBackPressed();
             }
         });
+
+        share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showMsg(relativeLayout);
+            }
+        });
+
+        favourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showMsg(relativeLayout);
+            }
+        });
+
+        message.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showMsg(relativeLayout);
+            }
+        });
+
+        requestMob.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showMsg(relativeLayout);
+            }
+        });
+
+        makeDeal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showMsg(relativeLayout);
+            }
+        });
+    }
+
+    public void showMsg(RelativeLayout relativeLayout) {
+        Snackbar snackbar = Snackbar.make(relativeLayout, "This action won't work in view mode", Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 
     private class PageChangeListener implements ViewPager.OnPageChangeListener {

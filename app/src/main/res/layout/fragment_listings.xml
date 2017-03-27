@@ -1,137 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary">
+    android:background="@color/layout_bg_color"
+    android:orientation="vertical">
 
-    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/swipeContainer"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <RelativeLayout
+            android:id="@+id/rl_info"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/b_see_result"
-            android:fitsSystemWindows="true"
-            android:orientation="vertical">
+            android:layout_gravity="center"
+            android:visibility="gone">
 
-            <RelativeLayout
-                android:id="@+id/rl_info"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/tv_info"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginBottom="20dp"
-                    android:layout_marginTop="210dp"
-                    android:text="No product to approve."
-                    android:textColor="@color/black"
-                    android:textSize="14sp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/rl_listings"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tv_info"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp">
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="42dp"
+                android:layout_marginRight="42dp"
+                android:layout_marginTop="210dp"
+                android:gravity="center"
+                android:text="No product to approve."
+                android:textColor="@color/black"
+                android:textSize="14sp" />
 
-                <TextView
-                    android:id="@+id/tv_listing"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:text="Inactive Prdoucts"
-                    android:textColor="@color/lightBlack"
-                    android:textSize="24sp" />
+            <Button
+                android:id="@+id/start_listing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_info"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/red_square_corner"
+                android:text="Start Listing"
+                android:textAllCaps="false"
+                android:textColor="@color/highlightColor"
+                android:textSize="14sp"
+                android:visibility="gone" />
+        </RelativeLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_below="@+id/tv_listing"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="184dp"
-                    android:background="@color/colorAccent" />
-
-
-                <!--<ImageView-->
-                    <!--android:id="@+id/iv_search"-->
-                    <!--android:layout_width="48dp"-->
-                    <!--android:layout_height="48dp"-->
-                    <!--android:layout_alignBottom="@+id/tv_listing"-->
-                    <!--android:layout_alignParentRight="true"-->
-                    <!--android:layout_marginRight="16dp"-->
-                    <!--android:padding="4dp"-->
-                    <!--android:src="@drawable/ic_search_black_24dp" />-->
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/rl_search"
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:layout_marginTop="42dp"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/tv_search"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_above="@+id/line"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_toLeftOf="@+id/iv_close"
-                    android:text="Search Result"
-                    android:textColor="@color/lightBlack"
-                    android:textSize="32sp"
-                    android:visibility="gone" />
-
-                <EditText
-                    android:id="@+id/et_search"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_toLeftOf="@+id/iv_close"
-                    android:background="@drawable/black_square_corner"
-                    android:hint="Enter product name"
-                    android:imeOptions="actionDone"
-                    android:inputType="text"
-                    android:textColor="@color/black"
-                    android:textSize="12sp" />
-
-                <View
-                    android:id="@+id/line"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="192dp"
-                    android:background="@color/colorAccent" />
-
-                <ImageView
-                    android:id="@+id/iv_close"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:padding="12dp"
-                    android:src="@drawable/ic_close_black_24dp" />
-            </RelativeLayout>
+        <com.wang.avi.AVLoadingIndicatorView
+            android:id="@+id/avi"
+            style="@style/AVLoadingIndicatorView.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="42dp"
+            android:visibility="visible"
+            app:indicatorColor="@color/highlightColor"
+            app:indicatorName="BallPulseSyncIndicator" />
 
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent" />
-        </LinearLayout>
-    </android.support.v4.widget.SwipeRefreshLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/transparent" />
+    </LinearLayout>
 </LinearLayout>

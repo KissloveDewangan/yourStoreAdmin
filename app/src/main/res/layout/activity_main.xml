@@ -2,7 +2,7 @@
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
+    android:id="@+id/nav_drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -11,7 +11,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimary"
+        android:background="@color/pureWhite"
         tools:context="in.co.opensoftlab.yourstoreadmin.activity.MainActivity">
 
         <android.support.v7.widget.Toolbar
@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_alignParentTop="true"
-            android:background="#F44336"
+            android:background="@color/primary"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
             <RelativeLayout
@@ -39,7 +39,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:text="Admin Panel"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@color/pureWhite"
                     android:textSize="16sp" />
             </RelativeLayout>
         </android.support.v7.widget.Toolbar>
@@ -53,12 +53,12 @@
 
     </RelativeLayout>
 
-    <!--<android.support.design.widget.NavigationView-->
-    <!--android:id="@+id/nav_view"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:layout_gravity="start"-->
-    <!--android:fitsSystemWindows="true"-->
-    <!--app:headerLayout="@layout/nav_header_main"-->
-    <!--app:menu="@menu/activity_main_drawer" />-->
+    <android.support.design.widget.NavigationView
+    android:id="@+id/nav_view"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_gravity="start"
+    android:fitsSystemWindows="true"
+    app:headerLayout="@layout/nav_header_main"
+    app:menu="@menu/activity_main_drawer" />
 </android.support.v4.widget.DrawerLayout>

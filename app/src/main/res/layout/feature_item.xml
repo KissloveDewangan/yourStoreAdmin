@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp">
+
+    <ImageView
+        android:id="@+id/iv_attr"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="4dp"
+        android:tint="#61000000" />
 
     <TextView
-        android:id="@+id/tv_feature"
-        android:layout_width="wrap_content"
+        android:id="@+id/tv_val"
+        android:layout_width="86dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in tincidunt quam, sed tempus turpis. Sed quis iaculis lacus, sit amet posuere mi. Donec eu eleifend eros. Sed accumsan neque a blandit euismod. Proin vestibulum quis urna vitae pretium. Nulla fermentum purus eget lacus mattis porttitor. Etiam in luctus lectus."
-        android:textColor="@color/blackshade1"
-        android:textSize="14sp" />
-</LinearLayout>
+        android:layout_below="@+id/iv_attr"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:maxLines="3"
+        android:text="50000 kms driven"
+        android:textColor="@color/primary_text"
+        android:textSize="12sp" />
+</RelativeLayout>

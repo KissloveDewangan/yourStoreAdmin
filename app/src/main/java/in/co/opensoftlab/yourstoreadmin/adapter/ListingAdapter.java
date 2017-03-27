@@ -35,14 +35,14 @@ public class ListingAdapter extends RecyclerView
             .OnClickListener {
 
         ImageView productImg, more;
-        TextView productName, productPrice, productQuantity;
+        TextView productName, productPrice, productInfo;
 
         public DataObjectHolder(View itemView) {
             super(itemView);
             productName = (TextView) itemView.findViewById(R.id.tv_product_name);
             productPrice = (TextView) itemView.findViewById(R.id.tv_product_price);
             productImg = (ImageView) itemView.findViewById(R.id.iv_product);
-            productQuantity = (TextView) itemView.findViewById(R.id.tv_quantity);
+            productInfo = (TextView) itemView.findViewById(R.id.tv_info);
             more = (ImageView) itemView.findViewById(R.id.iv_more);
             more.setOnClickListener(this);
         }
@@ -60,6 +60,9 @@ public class ListingAdapter extends RecyclerView
     public ListingAdapter(Context context, List<ListingItem> filterProducts) {
         this.context = context;
         this.filterProducts = filterProducts;
+    }
+
+    public void setData(List<ListingItem> filterProducts) {
         this.arraylist = new ArrayList<ListingItem>();
         this.arraylist.addAll(filterProducts);
     }
@@ -75,11 +78,10 @@ public class ListingAdapter extends RecyclerView
     public void onBindViewHolder(DataObjectHolder holder, int position) {
         Picasso.with(context)
                 .load(filterProducts.get(position).getProductUrl())
-                .resize(160, 192)
                 .into(holder.productImg);
         holder.productName.setText(filterProducts.get(position).getProductName());
         holder.productPrice.setText("" + filterProducts.get(position).getProductPrice());
-        holder.productQuantity.setText("|" + Html.fromHtml("<font color='#212121'><b>Qty: </b>") + "" + filterProducts.get(position).getQuantity());
+        holder.productInfo.setText(filterProducts.get(position).getInfo());
     }
 
     @Override

@@ -9,4 +9,8 @@
         android:id="@+id/approve"
         android:title="Approve"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/reject"
+        android:title="Reject"
+        app:showAsAction="never" />
 </menu>

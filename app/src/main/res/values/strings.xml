@@ -1,7 +1,10 @@
 <resources>
-    <string name="app_name">YourStore Admin</string>
+    <string name="app_name">Autoroom Admin</string>
 
     <string name="web_client_id">99894119459-jsh42894e82ml3rfsnmqa7nl9ah7kts1.apps.googleusercontent.com</string>
     <string name="api_key">AIzaSyAh7QjKWUkDYfBiyIaEQfX8KeEix82gRJs</string>
     <string name="headline_product_specification">Product Specifications</string>
+
+    <string name="closeDrawer">Closed</string>
+    <string name="openDrawer">Open</string>
 </resources>

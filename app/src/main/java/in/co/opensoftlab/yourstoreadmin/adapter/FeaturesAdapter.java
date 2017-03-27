@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -17,22 +18,26 @@ import in.co.opensoftlab.yourstoreadmin.R;
 public class FeaturesAdapter extends RecyclerView
         .Adapter<FeaturesAdapter
         .DataObjectHolder> {
-    private List<String> features;
-    private static Context context;
+    private List<String> val;
+    private List<Integer> attr;
+    private Context context;
 
     public static class DataObjectHolder extends RecyclerView.ViewHolder {
 
-        TextView name;
+        TextView value;
+        ImageView attribute;
 
         public DataObjectHolder(View itemView) {
             super(itemView);
-            name = (TextView) itemView.findViewById(R.id.tv_feature);
+            value = (TextView) itemView.findViewById(R.id.tv_val);
+            attribute = (ImageView) itemView.findViewById(R.id.iv_attr);
         }
     }
 
-    public FeaturesAdapter(Context context, List<String> features) {
+    public FeaturesAdapter(Context context, List<String> val, List<Integer> attr) {
         this.context = context;
-        this.features = features;
+        this.val = val;
+        this.attr = attr;
     }
 
     @Override
@@ -44,12 +49,13 @@ public class FeaturesAdapter extends RecyclerView
 
     @Override
     public void onBindViewHolder(DataObjectHolder holder, int position) {
-        holder.name.setText(features.get(position));
+        holder.value.setText(val.get(position));
+        holder.attribute.setImageResource(attr.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return features.size();
+        return val.size();
     }
 
 }

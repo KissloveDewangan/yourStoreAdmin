@@ -1,6 +1,7 @@
 package in.co.opensoftlab.yourstoreadmin.fragment;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -29,13 +31,18 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,30 +59,29 @@ import in.co.opensoftlab.yourstoreadmin.model.ProductModel;
 
 public class ListingFragment extends Fragment implements View.OnClickListener {
     RelativeLayout userInfo;
-    RelativeLayout listings;
-//    RelativeLayout search;
     RecyclerView recyclerView;
-//    ImageView productSearch;
-//    ImageView cancelSearch;
-//    EditText searchName;
-//    TextView searchHeader;
 
-    private SwipeRefreshLayout swipeContainer;
-
+    Query query;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+    private DatabaseReference mGeo;
+    private GeoFire geoFire;
+    private GeoFire geoFireAll;
 
     List<ListingItem> listingItems = new ArrayList<>();
     List<ProductModel> productModels = new ArrayList<>();
     ListingAdapter listingAdapter;
     LinearLayoutManager linearLayoutManager;
     ValueEventListener valueEventListener;
+    AVLoadingIndicatorView loadingIndicatorView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("products");
+        mDatabase = FirebaseDatabase.getInstance().getReference("products").child("all");
+        mGeo = FirebaseDatabase.getInstance().getReference("products").child("geoData");
+        query = mDatabase.child("live").orderByChild("assuredProduct").equalTo(0);
     }
 
     @Nullable
@@ -90,8 +96,8 @@ public class ListingFragment extends Fragment implements View.OnClickListener {
     public void onPause() {
         super.onPause();
         if (isNetworkConnected()) {
-            if (mDatabase != null)
-                mDatabase.removeEventListener(valueEventListener);
+            if (query != null)
+                query.removeEventListener(valueEventListener);
         }
     }
 
@@ -99,9 +105,6 @@ public class ListingFragment extends Fragment implements View.OnClickListener {
     public void onResume() {
         super.onResume();
         Log.d("onResume", "onResume");
-        listings.setVisibility(View.VISIBLE);
-//        search.setVisibility(View.GONE);
-//        searchHeader.setVisibility(View.GONE);
 
         valueEventListener = new ValueEventListener() {
             @Override
@@ -115,38 +118,37 @@ public class ListingFragment extends Fragment implements View.OnClickListener {
 
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         ProductModel products = postSnapshot.getValue(ProductModel.class);
-                        ListingItem listingItem = new ListingItem(postSnapshot.getKey(), products.getProductUrls().split("::")[0], products.getProductName(), products.getSellingPrice(), products.getQty());
-                        listingItems.add(listingItem);
+                        if (products.getProductType().contentEquals("Car")) {
+                            ListingItem listingItem = new ListingItem(products.getProductType(), postSnapshot.getKey(),
+                                    products.getProductUrls().split("::")[0], products.getProductName(), products.getPrice(),
+                                    products.getFuelType() + " - " + products.getDrivenDistance() + " kms - " + products.getModelYear());
+                            listingItems.add(listingItem);
+                        } else {
+                            ListingItem listingItem = new ListingItem(products.getProductType(), postSnapshot.getKey(),
+                                    products.getProductUrls().split("::")[0], products.getProductName(), products.getPrice(),
+                                    products.getDrivenDistance() + " kms - " + products.getModelYear());
+                            listingItems.add(listingItem);
+                        }
                         productModels.add(products);
                     }
-                    listingAdapter = new ListingAdapter(getActivity().getApplicationContext(), listingItems);
-                    recyclerView.setAdapter(listingAdapter);
-                    //listingAdapter.notifyDataSetChanged();
-                    listingAdapter.setOnItemClickListener(new ListingAdapter.MyClickListener() {
-                        @Override
-                        public void onItemClick(int position, View v) {
-                            if (v.getId() == R.id.iv_more) {
-                                showPopup(v, position);
-                            } else {
-
-                            }
-                        }
-                    });
+                    listingAdapter.notifyDataSetChanged();
                 } else {
                     userInfo.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
                 }
-                swipeContainer.setRefreshing(false);
+//                swipeContainer.setRefreshing(false);
+                loadingIndicatorView.hide();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.d("dbError", databaseError.getMessage());
-                swipeContainer.setRefreshing(false);
+//                swipeContainer.setRefreshing(false);
+                loadingIndicatorView.hide();
             }
         };
         if (isNetworkConnected())
-            mDatabase.child("inactive").addListenerForSingleValueEvent(valueEventListener);
+            query.addListenerForSingleValueEvent(valueEventListener);
     }
 
     @Override
@@ -162,61 +164,23 @@ public class ListingFragment extends Fragment implements View.OnClickListener {
     private void initUI(View view) {
         userInfo = (RelativeLayout) view.findViewById(R.id.rl_info);
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
-//        productSearch = (ImageView) view.findViewById(R.id.iv_search);
-        listings = (RelativeLayout) view.findViewById(R.id.rl_listings);
-//        search = (RelativeLayout) view.findViewById(R.id.rl_search);
-//        searchName = (EditText) view.findViewById(R.id.et_search);
-//        cancelSearch = (ImageView) view.findViewById(R.id.iv_close);
-//        searchHeader = (TextView) view.findViewById(R.id.tv_search);
-        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+//        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+        loadingIndicatorView = (AVLoadingIndicatorView) view.findViewById(R.id.avi);
 
+        loadingIndicatorView.smoothToShow();
         recyclerView.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
-
-//        productSearch.setOnClickListener(this);
-//        cancelSearch.setOnClickListener(this);
-//
-//        searchName.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable editable) {
-//                String watchable = editable.toString();
-//                listingAdapter.filter(watchable);
-//
-//            }
-//        });
-//
-//        searchName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-//                if ((keyEvent != null && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (i == EditorInfo.IME_ACTION_DONE)) {
-//                    InputMethodManager imm2 = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//                    imm2.hideSoftInputFromWindow(searchName.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
-//                    searchHeader.setVisibility(View.VISIBLE);
-//                    searchName.setVisibility(View.GONE);
-//                    return true;
-//                }
-//                return false;
-//            }
-//        });
-
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        listingAdapter = new ListingAdapter(getActivity().getApplicationContext(), listingItems);
+        recyclerView.setAdapter(listingAdapter);
+        listingAdapter.setOnItemClickListener(new ListingAdapter.MyClickListener() {
             @Override
-            public void onRefresh() {
-                // Your code to refresh the list here.
-                // Make sure you call swipeContainer.setRefreshing(false)
-                // once the network request has completed successfully.
-                mDatabase.child("inactive").addListenerForSingleValueEvent(valueEventListener);
+            public void onItemClick(int position, View v) {
+                if (v.getId() == R.id.iv_more) {
+                    showPopup(v, position);
+                } else {
+
+                }
             }
         });
     }
@@ -224,24 +188,6 @@ public class ListingFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-//            case R.id.iv_search:
-//                if (isNetworkConnected()) {
-//                    listings.setVisibility(View.GONE);
-//                    search.setVisibility(View.VISIBLE);
-//                    searchName.requestFocus();
-//                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//                    imm.showSoftInput(searchName, InputMethodManager.SHOW_IMPLICIT);
-//                }
-//                break;
-//            case R.id.iv_close:
-//                searchHeader.setVisibility(View.GONE);
-//                searchName.setVisibility(View.VISIBLE);
-//                searchName.setText("");
-//                search.setVisibility(View.GONE);
-//                listings.setVisibility(View.VISIBLE);
-//                InputMethodManager imm2 = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//                imm2.hideSoftInputFromWindow(searchName.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
-//                break;
             default:
                 return;
         }
@@ -253,18 +199,96 @@ public class ListingFragment extends Fragment implements View.OnClickListener {
         popup.getMenuInflater().inflate(R.menu.listing_popup, popup.getMenu());
         popup.getMenu().findItem(R.id.view_as_user).setTitle(Html.fromHtml("<font color='#000000'>View as Buyer"));
         popup.getMenu().findItem(R.id.approve).setTitle(Html.fromHtml("<font color='#000000'>Approve"));
+        popup.getMenu().findItem(R.id.reject).setTitle(Html.fromHtml("<font color='#000000'>Reject"));
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 if (item.getItemId() == R.id.view_as_user) {
-                    lookProduct(listingItems.get(position).getId());
+                    lookProduct(listingItems.get(position).getId(), listingItems.get(position).getProductType());
+                } else if (item.getItemId() == R.id.reject) {
+                    final AlertDialog.Builder alertDiallogBuilder = new AlertDialog.Builder(getContext());
+                    alertDiallogBuilder.setTitle(Html.fromHtml("<font color='#212121'><b>Alert"));
+                    alertDiallogBuilder.setMessage(Html.fromHtml("<font color=\"#424242\">Are you sure want to reject this item?</font>"));
+                    alertDiallogBuilder.setPositiveButton(Html.fromHtml("<font color=\"#212121\"><b>Yes</b></font>"), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            geoFire = new GeoFire(mGeo.child("live").child("All"));
+                            geoFireAll = new GeoFire(mGeo.child("live").child(listingItems.get(position).getProductType()));
+
+                            ProductModel model = productModels.get(position);
+                            mDatabase.child("inactive").child(listingItems.get(position).getId()).setValue(model);
+                            mDatabase.child("live").child(listingItems.get(position).getId()).setValue(null);
+
+//                            double placeLat = Double.parseDouble(productModels.get(position).getGeoLocation().split("::")[0]);
+//                            double placeLng = Double.parseDouble(productModels.get(position).getGeoLocation().split("::")[1]);
+
+//                            geoFire.setLocation(listingItems.get(position).getId(),
+//                                    new GeoLocation(placeLat, placeLng));
+//                            geoFireAll.setLocation(listingItems.get(position).getId(),
+//                                    new GeoLocation(placeLat, placeLng));
+
+                            geoFire.removeLocation(listingItems.get(position).getId());
+                            geoFireAll.removeLocation(listingItems.get(position).getId());
+
+                            listingItems.remove(position);
+                            listingAdapter.notifyDataSetChanged();
+
+                            dialog.dismiss();
+                        }
+                    });
+                    alertDiallogBuilder.setNegativeButton(Html.fromHtml("<font color=\"#212121\"><b>No</b></font>"), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    final AlertDialog alertDialog = alertDiallogBuilder.create();
+                    alertDialog.show();
                 } else if (item.getItemId() == R.id.approve) {
-                    ProductModel model = productModels.get(position);
-                    mDatabase.child("live").child(listingItems.get(position).getId()).setValue(model);
-                    mDatabase.child("inactive").child(listingItems.get(position).getId()).setValue(null);
-                    listingItems.remove(position);
-                    listingAdapter = new ListingAdapter(getActivity().getApplicationContext(), listingItems);
-                    recyclerView.setAdapter(listingAdapter);
+                    final AlertDialog.Builder alertDiallogBuilder = new AlertDialog.Builder(getContext());
+                    alertDiallogBuilder.setTitle(Html.fromHtml("<font color='#212121'><b>Alert"));
+                    alertDiallogBuilder.setMessage(Html.fromHtml("<font color=\"#424242\">Are you sure want to approve this item?</font>"));
+                    alertDiallogBuilder.setPositiveButton(Html.fromHtml("<font color=\"#212121\"><b>Yes</b></font>"), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+
+                            mDatabase.child("live").child(listingItems.get(position).getId()).runTransaction(new Transaction.Handler() {
+                                @Override
+                                public Transaction.Result doTransaction(MutableData mutableData) {
+
+                                    ProductModel p = mutableData.getValue(ProductModel.class);
+                                    if (p == null) {
+                                        return Transaction.success(mutableData);
+                                    }
+
+                                    p.setAssuredProduct(1);
+
+                                    mutableData.setValue(p);
+                                    return Transaction.success(mutableData);
+                                }
+
+                                @Override
+                                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
+                                }
+                            });
+
+                            listingItems.remove(position);
+                            listingAdapter.notifyDataSetChanged();
+
+                            dialog.dismiss();
+                        }
+                    });
+                    alertDiallogBuilder.setNegativeButton(Html.fromHtml("<font color=\"#212121\"><b>No</b></font>"), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    final AlertDialog alertDialog = alertDiallogBuilder.create();
+                    alertDialog.show();
                 }
                 popup.dismiss();
                 return true;
@@ -273,9 +297,10 @@ public class ListingFragment extends Fragment implements View.OnClickListener {
         popup.show();
     }
 
-    private void lookProduct(String productId) {
+    private void lookProduct(String productId, String productType) {
         Bundle bundle = new Bundle();
         bundle.putString("productId", productId);
+        bundle.putString("productType", productType);
         Intent intent = new Intent(getActivity().getApplicationContext(), ProductDescription.class);
         intent.putExtra("lookProduct", bundle);
         startActivity(intent);

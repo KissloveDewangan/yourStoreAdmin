@@ -5,47 +5,82 @@ package in.co.opensoftlab.yourstoreadmin.model;
  * Created by dewangankisslove on 12-12-2016.
  */
 public class ProductModel {
+    String productType;
     String productName;
     String productUrls;
-    String category;
-    String subCategory;
+    String bodyType;
+    String engine;
     String brand;
-    int mrp;
-    int sellingPrice;
-    int discount;
-    int qty;
-    String productFeatures;
-    String productSpecifications;
+    String modelName;
+    int modelYear;
+    int price;
+    String fuelType;
+    int seating;
+    int drivenDistance;
+    String color;
+    String transmission;
+    String sellerType;
+    String mileage;
+    int tankCapacity;
+    String ownerNo;
+    String conditions;
     String sellerName;
     String sellerId;
     String sellerUrl;
-    String storeName;
-    String services;
+    String profileId;
     String address;
     String geoLocation;
+    String uploadDate;
+    int assuredProduct;
+    String electricStart;
+    int topSpeed;
 
     public ProductModel() {
     }
 
-    public ProductModel(String productName, String productUrls, String category, String subCategory, String brand, int mrp, int sellingPrice, int discount, int qty, String productFeatures, String productSpecifications, String sellerName, String sellerId, String sellerUrl, String storeName, String services, String address, String geoLocation) {
+    public ProductModel(String productType, String productName, String productUrls, String bodyType,
+                        String engine, String brand, String modelName, int modelYear, int price,
+                        String fuelType, int seating, int drivenDistance, String color, String transmission,
+                        String sellerType, String mileage, int tankCapacity, String ownerNo, String conditions,
+                        String sellerName, String sellerId, String sellerUrl, String profileId, String address,
+                        String geoLocation, String uploadDate, int assuredProduct, String electricStart, int topSpeed) {
+        this.productType = productType;
         this.productName = productName;
         this.productUrls = productUrls;
-        this.category = category;
-        this.subCategory = subCategory;
+        this.bodyType = bodyType;
+        this.engine = engine;
         this.brand = brand;
-        this.mrp = mrp;
-        this.sellingPrice = sellingPrice;
-        this.discount = discount;
-        this.qty = qty;
-        this.productFeatures = productFeatures;
-        this.productSpecifications = productSpecifications;
+        this.modelName = modelName;
+        this.modelYear = modelYear;
+        this.price = price;
+        this.fuelType = fuelType;
+        this.seating = seating;
+        this.drivenDistance = drivenDistance;
+        this.color = color;
+        this.transmission = transmission;
+        this.sellerType = sellerType;
+        this.mileage = mileage;
+        this.tankCapacity = tankCapacity;
+        this.ownerNo = ownerNo;
+        this.conditions = conditions;
         this.sellerName = sellerName;
         this.sellerId = sellerId;
         this.sellerUrl = sellerUrl;
-        this.storeName = storeName;
-        this.services = services;
+        this.profileId = profileId;
         this.address = address;
         this.geoLocation = geoLocation;
+        this.uploadDate = uploadDate;
+        this.assuredProduct = assuredProduct;
+        this.electricStart = electricStart;
+        this.topSpeed = topSpeed;
+    }
+
+    public String getProductType() {
+        return productType;
+    }
+
+    public void setProductType(String productType) {
+        this.productType = productType;
     }
 
     public String getProductName() {
@@ -64,20 +99,20 @@ public class ProductModel {
         this.productUrls = productUrls;
     }
 
-    public String getCategory() {
-        return category;
+    public String getBodyType() {
+        return bodyType;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setBodyType(String bodyType) {
+        this.bodyType = bodyType;
     }
 
-    public String getSubCategory() {
-        return subCategory;
+    public String getEngine() {
+        return engine;
     }
 
-    public void setSubCategory(String subCategory) {
-        this.subCategory = subCategory;
+    public void setEngine(String engine) {
+        this.engine = engine;
     }
 
     public String getBrand() {
@@ -88,52 +123,108 @@ public class ProductModel {
         this.brand = brand;
     }
 
-    public int getMrp() {
-        return mrp;
+    public String getModelName() {
+        return modelName;
     }
 
-    public void setMrp(int mrp) {
-        this.mrp = mrp;
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
     }
 
-    public int getSellingPrice() {
-        return sellingPrice;
+    public int getModelYear() {
+        return modelYear;
     }
 
-    public void setSellingPrice(int sellingPrice) {
-        this.sellingPrice = sellingPrice;
+    public void setModelYear(int modelYear) {
+        this.modelYear = modelYear;
     }
 
-    public int getDiscount() {
-        return discount;
+    public int getPrice() {
+        return price;
     }
 
-    public void setDiscount(int discount) {
-        this.discount = discount;
+    public void setPrice(int price) {
+        this.price = price;
     }
 
-    public int getQty() {
-        return qty;
+    public String getFuelType() {
+        return fuelType;
     }
 
-    public void setQty(int qty) {
-        this.qty = qty;
+    public void setFuelType(String fuelType) {
+        this.fuelType = fuelType;
     }
 
-    public String getProductFeatures() {
-        return productFeatures;
+    public int getSeating() {
+        return seating;
     }
 
-    public void setProductFeatures(String productFeatures) {
-        this.productFeatures = productFeatures;
+    public void setSeating(int seating) {
+        this.seating = seating;
     }
 
-    public String getProductSpecifications() {
-        return productSpecifications;
+    public int getDrivenDistance() {
+        return drivenDistance;
     }
 
-    public void setProductSpecifications(String productSpecifications) {
-        this.productSpecifications = productSpecifications;
+    public void setDrivenDistance(int drivenDistance) {
+        this.drivenDistance = drivenDistance;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getTransmission() {
+        return transmission;
+    }
+
+    public void setTransmission(String transmission) {
+        this.transmission = transmission;
+    }
+
+    public String getSellerType() {
+        return sellerType;
+    }
+
+    public void setSellerType(String sellerType) {
+        this.sellerType = sellerType;
+    }
+
+    public String getMileage() {
+        return mileage;
+    }
+
+    public void setMileage(String mileage) {
+        this.mileage = mileage;
+    }
+
+    public int getTankCapacity() {
+        return tankCapacity;
+    }
+
+    public void setTankCapacity(int tankCapacity) {
+        this.tankCapacity = tankCapacity;
+    }
+
+    public String getOwnerNo() {
+        return ownerNo;
+    }
+
+    public void setOwnerNo(String ownerNo) {
+        this.ownerNo = ownerNo;
+    }
+
+    public String getConditions() {
+        return conditions;
+    }
+
+    public void setConditions(String conditions) {
+        this.conditions = conditions;
     }
 
     public String getSellerName() {
@@ -160,20 +251,12 @@ public class ProductModel {
         this.sellerUrl = sellerUrl;
     }
 
-    public String getStoreName() {
-        return storeName;
+    public String getProfileId() {
+        return profileId;
     }
 
-    public void setStoreName(String storeName) {
-        this.storeName = storeName;
-    }
-
-    public String getServices() {
-        return services;
-    }
-
-    public void setServices(String services) {
-        this.services = services;
+    public void setProfileId(String profileId) {
+        this.profileId = profileId;
     }
 
     public String getAddress() {
@@ -190,5 +273,37 @@ public class ProductModel {
 
     public void setGeoLocation(String geoLocation) {
         this.geoLocation = geoLocation;
+    }
+
+    public String getUploadDate() {
+        return uploadDate;
+    }
+
+    public void setUploadDate(String uploadDate) {
+        this.uploadDate = uploadDate;
+    }
+
+    public int getAssuredProduct() {
+        return assuredProduct;
+    }
+
+    public void setAssuredProduct(int assuredProduct) {
+        this.assuredProduct = assuredProduct;
+    }
+
+    public String getElectricStart() {
+        return electricStart;
+    }
+
+    public void setElectricStart(String electricStart) {
+        this.electricStart = electricStart;
+    }
+
+    public int getTopSpeed() {
+        return topSpeed;
+    }
+
+    public void setTopSpeed(int topSpeed) {
+        this.topSpeed = topSpeed;
     }
 }
